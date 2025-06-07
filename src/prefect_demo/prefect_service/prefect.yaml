@@ -1,0 +1,16 @@
+pull:
+  - prefect.deployments.steps.set_working_directory:
+      directory: "${PROJECT_ROOT}/src"
+
+# 部署定義
+deployments:
+  - name: "flow01"
+    entrypoint: "prefect_demo/flow01/deploy.py:do_flow01"
+    description: "每日執行flow 01"
+    schedule:
+      cron: "0 16 * * 1-5"   # 週一到週五下午4:00
+      timezone: "Asia/Taipei"
+    work_pool:
+      name: "default"
+    parameters: {}
+    tags: ["flow01", "daily"]
