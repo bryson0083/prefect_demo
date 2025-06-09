@@ -15,3 +15,7 @@ data/
 
 # Virtual environments
 .venv
+
+# other files
+.DS_Store
+output/

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 簡化的 Prefect 部署腳本
 直接執行必要的部署命令
@@ -29,6 +30,8 @@ def run_command(command: list, description: str) -> bool:
             check=True,
             capture_output=True,
             text=True,
+            encoding='utf-8',  # 明確指定 UTF-8 編碼
+            errors='replace',  # 遇到無法解碼的字符時替換為 ? 而不是拋出異常
             cwd=os.getcwd()
         )
         print(f"✅ {description}成功")
@@ -50,26 +53,39 @@ def main():
     print("🎯 Prefect Demo - 簡化部署器")
     print("=" * 60)
     
+    # 設定編碼環境變數，解決 Windows 中文編碼問題
+    os.environ["PYTHONIOENCODING"] = "utf-8"
+    os.environ["PYTHONUTF8"] = "1"
+    
     # 設定環境變數
-    api_host = os.environ.get("PREFECT_SERVER_API_HOST", "127.0.0.1")
-    api_port = os.environ.get("PREFECT_SERVER_API_PORT", "4200")
-    api_url = f"http://{api_host}:{api_port}/api"
+    api_url = os.environ.get("PREFECT_API_URL", "http://127.0.0.1:4200/api")
+    
+    # 從 API URL 中解析 host 和 port 用於顯示
+    import urllib.parse
+    parsed_url = urllib.parse.urlparse(api_url)
+    api_host = parsed_url.hostname or "127.0.0.1"
+    api_port = str(parsed_url.port) if parsed_url.port else "4200"
     
     # 覆蓋 PROJECT_ROOT 環境變數為正確的專案根目錄
     # (settings.py 會將它設定為 proj_util_pkg 目錄，但我們需要專案根目錄)
     # project_root 目前是 src 目錄，我們需要它的父目錄作為真正的專案根目錄
-    real_project_root = project_root.parent
-    os.environ["PROJECT_ROOT"] = str(real_project_root)
-    print(f"🔧 覆蓋 PROJECT_ROOT: {real_project_root}")
+    # real_project_root = project_root.parent
+    # os.environ["PROJECT_ROOT"] = str(real_project_root)
+    # print(f"🔧 覆蓋 PROJECT_ROOT: {real_project_root}")
     
     # 設定 Prefect API URL
     os.environ["PREFECT_API_URL"] = api_url
     print(f"🌐 API URL: {api_url}")
     print(f"📁 PROJECT_ROOT: {os.environ['PROJECT_ROOT']}")
     
+    # # 切換到 src 目錄（這是 prefect.yaml 中設定的工作目錄）
+    # src_dir = real_project_root / "src"
+    # prefect_yaml_path = Path(__file__).parent / "prefect.yaml"
+
     # 切換到 src 目錄（這是 prefect.yaml 中設定的工作目錄）
-    src_dir = real_project_root / "src"
-    prefect_yaml_path = Path(__file__).parent / "prefect.yaml"
+    src_dir = os.environ['PROJECT_ROOT']
+    prefect_yaml_path = os.path.join(src_dir, "prefect_service", "prefect.yaml")
+
     original_cwd = os.getcwd()
     
     try:

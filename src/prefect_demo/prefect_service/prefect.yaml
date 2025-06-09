@@ -1,11 +1,14 @@
+# Prefect 配置文件
+# 建議prefect.deployments.steps.set_working_directory參數直接指定絕對路徑。
 pull:
   - prefect.deployments.steps.set_working_directory:
-      directory: "${PROJECT_ROOT}/src"
+      directory: "/Users/bryson0083/projects/prefect_demo/src/prefect_demo"
 
-# 部署定義
+
+# 流程部署
 deployments:
   - name: "flow01"
-    entrypoint: "prefect_demo/flow01/deploy.py:do_flow01"
+    entrypoint: "flow01/deploy.py:do_flow01"
     description: "每日執行flow 01"
     schedule:
       cron: "0 16 * * 1-5"   # 週一到週五下午4:00

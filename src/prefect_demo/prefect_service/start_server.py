@@ -33,25 +33,31 @@ def setup_prefect_environment():
     # 設定環境變數
     os.environ["PREFECT_HOME"] = str(prefect_home)
     
-    # 從.env檔案中獲取環境變數，如果沒有則使用預設值
-    api_host = os.environ.get("PREFECT_SERVER_API_HOST", "127.0.0.1")
-    api_port = os.environ.get("PREFECT_SERVER_API_PORT", "4200")
+    # 從 PREFECT_API_URL 中解析 host 和 port
+    api_url = os.environ.get("PREFECT_API_URL", "http://127.0.0.1:4200/api")
+    import urllib.parse
+    parsed_url = urllib.parse.urlparse(api_url)
+    api_host = parsed_url.hostname or "127.0.0.1"
+    api_port = str(parsed_url.port) if parsed_url.port else "4200"
     
-    # 確保這些環境變數有正確設定
+    # 設定環境變數以供 Prefect 伺服器使用
     os.environ["PREFECT_SERVER_API_HOST"] = api_host
     os.environ["PREFECT_SERVER_API_PORT"] = api_port
     
-    # 設定基本驗證（如果需要的話，可以在這裡添加用戶認證相關設定）
     print(f"✅ Prefect環境設定完成")
     print(f"📁 Prefect Home: {prefect_home}")
+    print(f"🌐 API URL: {api_url}")
     print(f"🌐 API Host: {api_host}:{api_port}")
 
 def start_prefect_server():
     """啟動Prefect伺服器"""
     try:
         print("🚀 正在啟動Prefect伺服器...")
+        
+        # 從環境變數獲取 host 和 port
         api_host = os.environ.get("PREFECT_SERVER_API_HOST", "127.0.0.1")
         api_port = os.environ.get("PREFECT_SERVER_API_PORT", "4200")
+        
         print(f"📊 Web UI將在 http://{api_host}:{api_port} 提供服務")
         print("⚡ 按 Ctrl+C 停止伺服器")
         print("-" * 50)
