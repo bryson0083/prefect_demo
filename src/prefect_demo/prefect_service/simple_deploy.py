@@ -23,6 +23,7 @@ from prefect_demo.proj_util_pkg.settings import settings
 
 def run_command(command: list, description: str) -> bool:
     """執行命令"""
+    
     try:
         print(f"🔄 {description}...")
         result = subprocess.run(
@@ -49,6 +50,7 @@ def run_command(command: list, description: str) -> bool:
 
 def main():
     """主函數"""
+
     print("=" * 60)
     print("🎯 Prefect Demo - 簡化部署器")
     print("=" * 60)
@@ -66,21 +68,10 @@ def main():
     api_host = parsed_url.hostname or "127.0.0.1"
     api_port = str(parsed_url.port) if parsed_url.port else "4200"
     
-    # 覆蓋 PROJECT_ROOT 環境變數為正確的專案根目錄
-    # (settings.py 會將它設定為 proj_util_pkg 目錄，但我們需要專案根目錄)
-    # project_root 目前是 src 目錄，我們需要它的父目錄作為真正的專案根目錄
-    # real_project_root = project_root.parent
-    # os.environ["PROJECT_ROOT"] = str(real_project_root)
-    # print(f"🔧 覆蓋 PROJECT_ROOT: {real_project_root}")
-    
     # 設定 Prefect API URL
     os.environ["PREFECT_API_URL"] = api_url
     print(f"🌐 API URL: {api_url}")
     print(f"📁 PROJECT_ROOT: {os.environ['PROJECT_ROOT']}")
-    
-    # # 切換到 src 目錄（這是 prefect.yaml 中設定的工作目錄）
-    # src_dir = real_project_root / "src"
-    # prefect_yaml_path = Path(__file__).parent / "prefect.yaml"
 
     # 切換到 src 目錄（這是 prefect.yaml 中設定的工作目錄）
     src_dir = os.environ['PROJECT_ROOT']
